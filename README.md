@@ -67,7 +67,7 @@ admin@example.com-----MyPassword123
 1. 打开 https://github.com/settings/tokens/new
 2. 配置：
    - **Note**：`Godlike Cookie 回写`（任意名称）
-   - **Expiration**：建议 `90 days` 或 `1 year`（过期后需重新生成）
+   - **Expiration**：建议 `90 days`（见下方说明）
    - **Scopes**：✅ 勾选 **`repo`**（完整勾选，包含所有子项）
    - **Scopes**：✅ 勾选 **`workflow`**
 3. 点页面底部绿色按钮 **Generate token**
@@ -75,6 +75,27 @@ admin@example.com-----MyPassword123
 5. 到仓库 Settings → Secrets → `New repository secret`
    - Name：`REPO_TOKEN`
    - Value：粘贴刚才的 token
+
+**⏰ Expiration 过期时间设置建议**：
+
+| 过期时间 | 推荐度 | 适用场景 |
+|---------|:------:|---------|
+| 30 days | ⭐⭐ | 测试阶段，最安全但需频繁更新 |
+| **90 days** | ⭐⭐⭐⭐⭐ | **日常使用，平衡安全与便利** |
+| 1 year | ⭐⭐⭐ | 长期稳定运行，省心但风险略高 |
+| No expiration | ⭐ | 不推荐，永不过期最不安全 |
+
+**为什么推荐 90 天？**
+- Godlike 续期是长期任务，token 太短频繁更新很烦
+- 90 天足够安全，即使泄露最多影响 3 个月
+- 配合 Cookie 回写，token 过期后 Cookie 还能用一段时间
+
+**过期后如何更新？**
+1. GitHub 会提前发邮件提醒
+2. 打开 https://github.com/settings/tokens
+3. 找到旧 token → 点 **Regenerate token**（不用删了重建）
+4. 复制新 token
+5. 到仓库 Settings → Secrets → 更新 `REPO_TOKEN` 的值
 
 **⚠️ 注意**：
 - Token 只显示一次，生成后立即复制保存
