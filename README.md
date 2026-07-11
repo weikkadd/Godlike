@@ -10,7 +10,7 @@
 - 🔐 **邮箱/密码登录** — 自动登录 Godlike 面板
 - 👥 **多账号支持** — 最多 5 个账号（`GODLIKE_1` ~ `GODLIKE_5`）
 - 🍪 **Cookie 自动缓存** — 登录成功后自动回写 Cookie 到 Secrets，后续优先使用 Cookie
-- 🌐 **全协议代理** — VLESS / VMess / Trojan / Shadowsocks / SOCKS5
+- 🌐 **全协议代理** — VLESS / VMess / Trojan / Shadowsocks / SOCKS5 / **TUIC** / **Hysteria2** / **AnyTLS**（基于 sing-box）
 - 📲 **Telegram 通知** — 续期成功/失败/24h上限/冷却期都会推送带截图的消息
 - ⏰ **定时任务** — GitHub Actions 每 3 小时自动运行
 - 🛡️ **24h上限/冷却期识别** — 自动识别并跳过
@@ -149,7 +149,7 @@ admin@example.com-----MyPassword123
 
 **用途**：如果 GitHub Actions IP 被 Godlike 封锁，配置代理切换 IP
 
-**支持格式**（与 v2rayN/Clash 兼容的分享链接）：
+**支持格式**（与 v2rayN/Clash 兼容的分享链接，基于 sing-box，支持所有主流协议）：
 
 | 协议 | 示例 |
 |------|------|
@@ -158,6 +158,9 @@ admin@example.com-----MyPassword123
 | Trojan | `trojan://password@host:port?type=ws&sni=...` |
 | Shadowsocks | `ss://YWVzLTI1Ni1nY206...` |
 | SOCKS5 | `socks5://user:pass@host:port` |
+| **TUIC** | `tuic://uuid:password@host:port?sni=...&alpn=h3` |
+| **Hysteria2** | `hysteria2://password@host:port?sni=...` 或 `hy2://...` |
+| **AnyTLS** | `anytls://uuid@host:port?sni=...` |
 
 **获取步骤**：
 1. 在你的代理客户端（v2rayN/Clash 等）找到节点
@@ -169,6 +172,7 @@ admin@example.com-----MyPassword123
 **⚠️ 注意**：
 - 不配置则直连访问
 - 建议用住宅代理（机房 IP 可能被封锁）
+- 支持所有主流协议：VLESS / VMess / Trojan / Shadowsocks / SOCKS5 / **TUIC** / **Hysteria2** / **AnyTLS**
 
 ---
 
