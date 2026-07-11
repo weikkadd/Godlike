@@ -108,29 +108,75 @@ def login_and_get_token(user: str, pwd: str, proxy: str = None) -> Tuple[Optiona
         page.on("request", on_request)
 
         try:
+            print(f"[DEBUG] 正在打开登录页: {LOGIN_URL}", flush=True)
             page.goto(LOGIN_URL, wait_until="domcontentloaded")
             page.wait_for_timeout(3000)
+            print(f"[DEBUG] 当前 URL: {page.url}", flush=True)
 
             switch = page.locator('button:has-text("Through login/password")')
-            switch.wait_for(state="visible", timeout=15000)
-            switch.click()
+            try:
+                switch.wait_for(state="visible", timeout=15000)
+                switch.click()
+                print("[DEBUG] 已点击 'Through login/password' 按钮", flush=True)
+            except Exception as e:
+                print(f"[ERROR] 未找到 'Through login/password' 按钮: {e}", flush=True)
+                try:
+                    page.screenshot(path="login_no_switch_btn.png")
+                    print(f"[DEBUG] 已截图: login_no_switch_btn.png (页面标题: {page.title()})", flush=True)
+                except:
+                    pass
+                return None, None, None
             page.wait_for_timeout(2000)
 
-            page.locator('input[placeholder="Username or Email"]').wait_for(state="visible", timeout=15000)
-            page.locator('input[placeholder="Password"]').wait_for(state="visible", timeout=15000)
+            try:
+                page.locator('input[placeholder="Username or Email"]').wait_for(state="visible", timeout=15000)
+                page.locator('input[placeholder="Password"]').wait_for(state="visible", timeout=15000)
+                print("[DEBUG] 找到邮箱和密码输入框", flush=True)
+            except Exception as e:
+                print(f"[ERROR] 未找到输入框: {e}", flush=True)
+                try:
+                    page.screenshot(path="login_no_input.png")
+                    print(f"[DEBUG] 已截图: login_no_input.png (页面标题: {page.title()})", flush=True)
+                except:
+                    pass
+                return None, None, None
+
             page.fill('input[placeholder="Username or Email"]', user)
             page.fill('input[placeholder="Password"]', pwd)
+            print("[DEBUG] 已填写邮箱和密码", flush=True)
 
+            login_clicked = False
             for sel in ['button[type="submit"]', 'button:has-text("Login")']:
                 try:
                     btn = page.locator(sel).first
                     if btn.is_visible():
                         btn.click(timeout=5000)
+                        login_clicked = True
+                        print(f"[DEBUG] 已点击登录按钮: {sel}", flush=True)
                         break
                 except:
                     pass
+            if not login_clicked:
+                print("[ERROR] 未找到登录按钮", flush=True)
+                try:
+                    page.screenshot(path="login_no_btn.png")
+                except:
+                    pass
+                return None, None, None
 
             page.wait_for_timeout(5000)
+            print(f"[DEBUG] 登录后 URL: {page.url}", flush=True)
+
+            # 检查是否有错误提示
+            try:
+                error_texts = ['Invalid', 'incorrect', 'failed', 'error', '错误', '失败']
+                for et in error_texts:
+                    el = page.locator(f'text="{et}"')
+                    if el.count() > 0 and el.first.is_visible():
+                        print(f"[ERROR] 登录错误提示: {et}", flush=True)
+                        break
+            except:
+                pass
 
             for _ in range(5):
                 for sel in ['button:has-text("Go to my server")', 'button:has-text("Skip")']:
@@ -138,13 +184,18 @@ def login_and_get_token(user: str, pwd: str, proxy: str = None) -> Tuple[Optiona
                         el = page.locator(sel)
                         if el.count() > 0 and el.first.is_visible():
                             el.first.click()
+                            print(f"[DEBUG] 已点击: {sel}", flush=True)
                             page.wait_for_timeout(2000)
                             break
                     except:
                         pass
                 if '/server/' in page.url:
+                    print(f"[DEBUG] 已进入服务器页: {page.url}", flush=True)
                     break
                 page.wait_for_timeout(1000)
+
+            print(f"[DEBUG] 最终 URL: {page.url}", flush=True)
+            print(f"[DEBUG] bearer_token: {'已获取' if bearer_token else '未获取'}, short_id: {short_id or '未获取'}", flush=True)
 
             if not short_id:
                 if '/server/' in page.url:
