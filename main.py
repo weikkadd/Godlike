@@ -167,7 +167,84 @@ def login_and_get_token(user: str, pwd: str, proxy: str = None) -> Tuple[Optiona
             page.wait_for_timeout(5000)
             print(f"[DEBUG] 登录后 URL: {page.url}", flush=True)
 
-            # 检查是否有错误提示
+            # === 详细诊断：捕获登录失败的原因 ===
+            # 1. 检查 URL 是否还在登录页
+            if '/login' in page.url:
+                print("[ERROR] 登录后仍在登录页，登录被拒绝", flush=True)
+                try:
+                    page.screenshot(path="login_rejected.png", full_page=True)
+                    print("[DEBUG] 已截图: login_rejected.png", flush=True)
+                except:
+                    pass
+
+                # 2. 读取页面上所有可见的错误提示文本
+                try:
+                    print("[DEBUG] === 页面可见文本诊断 ===", flush=True)
+                    # 常见错误提示选择器
+                    error_selectors = [
+                        '.alert', '.alert-danger', '.error', '.error-message',
+                        '[class*="error"]', '[class*="Error"]',
+                        '[role="alert"]', '.text-red', '.text-danger',
+                        '.invalid-feedback', '.form-error',
+                        'div:text-matches("invalid|incorrect|failed|error|wrong|错误|失败|无效", "i")',
+                    ]
+                    for sel in error_selectors:
+                        try:
+                            els = page.locator(sel)
+                            cnt = els.count()
+                            for i in range(min(cnt, 3)):
+                                txt = els.nth(i).inner_text(timeout=1000).strip()
+                                if txt and len(txt) < 500:
+                                    print(f"[ERROR] 错误提示 ({sel}): {txt}", flush=True)
+                        except:
+                            pass
+
+                    # 3. 读取整个页面的文本（前 1000 字符），找错误关键词
+                    body_text = page.locator('body').inner_text(timeout=3000)
+                    # 找包含错误关键词的行
+                    keywords = ['invalid', 'incorrect', 'failed', 'error', 'wrong',
+                                'disabled', 'blocked', 'captcha', 'verify', 'recaptcha',
+                                '错误', '失败', '无效', '验证', '锁定', '禁止']
+                    for line in body_text.split('\n'):
+                        line_stripped = line.strip()
+                        if line_stripped and any(kw in line_stripped.lower() for kw in keywords):
+                            if 5 < len(line_stripped) < 300:
+                                print(f"[ERROR] 页面文本: {line_stripped}", flush=True)
+                except Exception as e:
+                    print(f"[DEBUG] 读取页面文本失败: {e}", flush=True)
+
+                # 4. 检查是否有 reCAPTCHA / hCaptcha / Turnstile
+                try:
+                    captcha_selectors = [
+                        'iframe[src*="recaptcha"]', 'iframe[src*="hcaptcha"]',
+                        'iframe[src*="challenges.cloudflare.com"]',
+                        '.g-recaptcha', '.h-captcha', '.cf-turnstile',
+                        '[data-sitekey]'
+                    ]
+                    for sel in captcha_selectors:
+                        try:
+                            cnt = page.locator(sel).count()
+                            if cnt > 0:
+                                print(f"[ERROR] 检测到验证码: {sel} (共 {cnt} 个)", flush=True)
+                        except:
+                            pass
+                except:
+                    pass
+
+                # 5. 检查输入框是否有错误样式 (红框等)
+                try:
+                    for input_sel in ['input[placeholder="Username or Email"]', 'input[placeholder="Password"]']:
+                        try:
+                            el = page.locator(input_sel).first
+                            class_name = el.get_attribute("class") or ""
+                            if "error" in class_name.lower() or "invalid" in class_name.lower():
+                                print(f"[ERROR] 输入框有错误样式: {input_sel} class='{class_name}'", flush=True)
+                        except:
+                            pass
+                except:
+                    pass
+
+            # 原有的简单错误提示检查
             try:
                 error_texts = ['Invalid', 'incorrect', 'failed', 'error', '错误', '失败']
                 for et in error_texts:
