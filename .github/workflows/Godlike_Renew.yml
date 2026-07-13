@@ -9,6 +9,9 @@ jobs:
     name: 运行续期脚本
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: write
 
     steps:
       - name: 拉取仓库
