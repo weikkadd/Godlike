@@ -51,19 +51,14 @@ def notify_tg(ok: bool, email: str = "", server: str = "",
     if not token or not chat_id:
         return
 
-    msg = "✅ 续期+开机成功\n\n" if ok else "❌ 操作失败\n\n"
-    if email:   msg += f"账号：{email}\n"
-    if server:  msg += f"服务器：{server}\n"
+    msg = "✓ 续期+开机成功\n" if ok else "✗ 操作失败\n"
+    if email:   msg += f"账号: {email}\n"
+    if server:  msg += f"服务器: {server}\n"
     if ok:
-        if after: msg += f"下次可续期：{after}\n"
+        if after: msg += f"下次可续期: {after}\n"
     else:
-        if error_msg: msg += f"原因：{error_msg}\n"
-    msg += f"\n时间：{cn_time()}\n"
-    # 带上具体服务器详情页 URL (如果有 server ID)
-    if server:
-        msg += f"🌐 {FRONT_BASE}/server/{server}\n"
-    else:
-        msg += f"🌐 {FRONT_BASE}\n"
+        if error_msg: msg += f"原因: {error_msg}\n"
+    msg += f"时间: {cn_time()}\n"
     msg += "Godlike Host Auto Renew"
 
     try:
