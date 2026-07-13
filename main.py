@@ -62,17 +62,11 @@ def notify_tg(ok: bool, email: str = "", server: str = "",
     msg += "Godlike Host Auto Renew"
 
     try:
-        if screenshot and Path(screenshot).exists():
-            with open(screenshot, "rb") as f:
-                requests.post(
-                    f"https://api.telegram.org/bot{token}/sendPhoto",
-                    data={"chat_id": chat_id, "caption": msg},
-                    files={"photo": f}, timeout=30)
-        else:
-            requests.post(
-                f"https://api.telegram.org/bot{token}/sendMessage",
-                json={"chat_id": chat_id, "text": msg, "disable_web_page_preview": True},
-                timeout=30)
+        # 统一纯文本通知 (不发送截图, 保持简洁格式)
+        requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat_id, "text": msg, "disable_web_page_preview": True},
+            timeout=30)
         print("[INFO] TG 通知已发送", flush=True)
     except Exception as e:
         print(f"[WARN] TG 通知发送失败: {e}", flush=True)
