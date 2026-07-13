@@ -58,7 +58,7 @@ def notify_tg(ok: bool, email: str = "", server: str = "",
         if after: msg += f"下次可续期：{after}\n"
     else:
         if error_msg: msg += f"原因：{error_msg}\n"
-    msg += f"\n时间：{cn_time()}\nGodlike Host Auto Renew"
+    msg += f"\n时间：{cn_time()}\n🌐 {FRONT_BASE}\nGodlike Host Auto Renew"
 
     try:
         if screenshot and Path(screenshot).exists():
