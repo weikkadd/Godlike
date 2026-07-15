@@ -51,7 +51,7 @@ def notify_tg(ok: bool, email: str = "", server: str = "",
     if not token or not chat_id:
         return
 
-    msg = f"🎮Godlike 续期通知\n⏰运行时间: {cn_time()}\n🖥️服务器: {server}\n🔢下次可续期: {after}\n📊续期结果: ✅续期+开机成功!\n📊状态: ✅服务器已在运行中" if ok else f"🎮Godlike 续期通知\n⏰运行时间: {cn_time()}\n🖥️服务器: {server}\n📊续期结果: ❌操作失败!\n📊原因: {error_msg}"
+    msg = f"🎮Godlike 续期通知\n⏰运行时间: {cn_time()}\n🖥️服务器: {server}\n🔢下次可续期: {after}\n🔢剩余时间: {after}\n📊续期结果: ✅续期+开机成功!\n📊状态: ✅服务器已在运行中" if ok else f"🎮Godlike 续期通知\n⏰运行时间: {cn_time()}\n🖥️服务器: {server}\n📊续期结果: ❌操作失败!\n📊原因: {error_msg}"
     if email:
         msg = msg.replace("🖥️服务器:", f"🖥️账号: {email}\n🖥️服务器:")
 
